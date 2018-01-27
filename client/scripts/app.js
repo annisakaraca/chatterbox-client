@@ -6,19 +6,22 @@
 // let object = {
 //   userName: 
 //   text:
-//   roomname:
+//   roomfdname:
 
-
-  
 // }
 
-
+let message = {username: 'derp',
+              text: 'hi',
+              roomname: 'lobby'
+  }
 
 let app = {
   someMessage: undefined,
   server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+  room: {},
   init: () => {
     app.fetch();
+
   },
   send: (message) => {
     $.ajax({
@@ -45,7 +48,16 @@ let app = {
       contentType: 'application/json',
       success: function (data) { //success is the callback inside the async fetch()
         app.someMessage = data;
-        app.someMessage.results.forEach((msg) => app.renderMessage(msg));
+        app.someMessage.results.forEach((msg) => app.helperToFillRoomPropertyMethod(msg));
+        console.log('all messages fetched and roomProperty filled');
+        // add listener on selector object
+        $('#roomSelect').on('change', () => {
+          app.clearMessages();
+          console.log('Room name re-selected');
+          let roomName = $('#roomSelect')[0].value;    
+          app.room[roomName].forEach((msg) => app.renderMessage(msg));
+          console.log('All messages in current room rendered');
+        });
         console.log('chatterbox: Message received');
       },
       error: function (data) {
@@ -68,12 +80,47 @@ let app = {
     $('.postcardDiv').append(usernameDiv);
     $( ".username" ).click(function() {
       app.handleUsernameClick();
-    }); 
+    });
     let text = message['text'];
     let roomname = message['roomname'];
 
 
     // debugger;
+
+
+    // if (isRoomThere === 0) {
+    //   app.renderRoom(roomname);
+    // }
+    $('.postcardDiv').append('<div class="text">' + text + '</div>');
+    
+    // console.log($('#roomSelect').children($('#' + roomName ])));
+
+    return text;
+  },
+  renderRoom: (roomName) => {
+    if (roomName === 'Lobby') {
+      $('#roomSelect').append('<option id="' + roomName +'" selected>' + roomName + '</option>');
+    } else {
+      $('#roomSelect').append('<option id="' + roomName +'">' + roomName + '</option>');
+    }
+  },
+  handleUsernameClick: () => {
+    console.log('clicked!');
+  },
+
+// starting point on day 2
+
+  helperToFillRoomPropertyMethod: (message) => {
+    let message_roomName = message.roomname;
+    if (app.room[message_roomName]) {
+      app.room[message_roomName].push(message);
+    } else {
+      app.room[message_roomName] = [];
+      app.room[message_roomName].push(message);
+    }
+
+    let roomname = message['roomname'];
+    // add rooms to roomSelect
     let currentRooms = $('#roomSelect').children();
     var matchedRoom = false;
     // if (roomname === 'lobby') {debugger}
@@ -87,22 +134,8 @@ let app = {
     if (!matchedRoom) {
       app.renderRoom(roomname);
     }    
-
-    // if (isRoomThere === 0) {
-    //   app.renderRoom(roomname);
-    // }
-    $('.postcardDiv').append('<div class="text">' + text + '</div>');
-    
-    // console.log($('#roomSelect').children($('#' + roomName ])));
-
-    return text;
-  },
-  renderRoom: (roomName) => {
-    $('#roomSelect').append('<option id="' + roomName +'">' + roomName + '</option>');
-  },
-  handleUsernameClick: () => {
-    console.log('clicked!');
   }
+
 };
 let username = window.location.search.slice(10);
 let messageText = $('input').val();
