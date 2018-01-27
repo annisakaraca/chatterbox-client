@@ -3,17 +3,13 @@
 
 // url http://parse.sfm8.hackreactor.com/chatterbox/classes/messages
 
-// let object = {
-//   userName: 
-//   text:
-//   roomfdname:
-
-// }
-
-let message = {username: 'derp',
-              text: 'hi',
-              roomname: 'lobby'
-  }
+let sendMessage = {
+  userName: 'derp',
+  text: 'hhh',
+  roomname: 'Lobby'
+};
+let username = window.location.search.slice(10);
+let messageText = $('input').val();
 
 let app = {
   someMessage: undefined,
@@ -26,10 +22,10 @@ let app = {
   send: (message) => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      url: url,
+      url: app.server,
       type: 'POST',
       data: message,
-      contentType: 'application/json',
+      'Content-Type': 'application/json',
       success: function (data) {
         console.log('chatterbox: Message sent');
       },
@@ -44,7 +40,7 @@ let app = {
       // This is the url you should use to communicate with the parse API server.
       url: app.server,  // ?? why would this be undefined
       type: 'GET',
-      // data: message,
+      data: {order: '-updatedAt'},
       contentType: 'application/json',
       success: function (data) { //success is the callback inside the async fetch()
         app.someMessage = data;
@@ -66,37 +62,42 @@ let app = {
       }
     });
   },
+
   clearMessages: () => {
     $('#chats').empty();
   },
+
   renderMessage: (message) => {
     // temp div
-    let tempDiv = '<div class="postcardDiv"></div>';
+    let userName = message['username'];
+    let text = message['text'];
+    let tempDiv = '<div class="postcardDiv"><div class="username">' + userName + '</div><div class="text">' + text + '</div></div>';
     // add name div and message div to the temp div
+
+    // let usernameDiv = '<div class="username">' + userName + '</div>';
+    // tempDiv.append(usernameDiv);
+    // $( ".username" ).click(function() {
+    //   app.handleUsernameClick();
+    // });
+    // let roomname = message['roomname'];
+
+
+    // // debugger;
+
+
+    // // if (isRoomThere === 0) {
+    // //   app.renderRoom(roomname);
+    // // }
+    // // console.log(text)
+    // tempDiv.append('<div class="text">' + text + '</div>');
+    console.log(tempDiv);
     $('#chats').append(tempDiv);
 
-    let userName = message['username'];
-    let usernameDiv = '<div class="username">' + userName + '</div>';
-    $('.postcardDiv').append(usernameDiv);
-    $( ".username" ).click(function() {
-      app.handleUsernameClick();
-    });
-    let text = message['text'];
-    let roomname = message['roomname'];
-
-
-    // debugger;
-
-
-    // if (isRoomThere === 0) {
-    //   app.renderRoom(roomname);
-    // }
-    $('.postcardDiv').append('<div class="text">' + text + '</div>');
     
     // console.log($('#roomSelect').children($('#' + roomName ])));
 
-    return text;
   },
+
   renderRoom: (roomName) => {
     if (roomName === 'Lobby') {
       $('#roomSelect').append('<option id="' + roomName +'" selected>' + roomName + '</option>');
@@ -104,11 +105,10 @@ let app = {
       $('#roomSelect').append('<option id="' + roomName +'">' + roomName + '</option>');
     }
   },
+
   handleUsernameClick: () => {
     console.log('clicked!');
   },
-
-// starting point on day 2
 
   helperToFillRoomPropertyMethod: (message) => {
     let message_roomName = message.roomname;
@@ -135,23 +135,17 @@ let app = {
       app.renderRoom(roomname);
     }    
   }
+// TODO - add s
+
 
 };
-let username = window.location.search.slice(10);
-let messageText = $('input').val();
-
-// let message = {
-//   username: username,
-//   messageText: messageText
-    //roomName; roomName;
-// };
 
 // TODO -might give an error in the future
 console.log($('input').val());
 //
 
 console.log(username);
-const url = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
+// const url = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
 
 // GET the messages from URL @ line 4
 // create the node from the messages
