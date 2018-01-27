@@ -15,7 +15,11 @@
 
 
 let app = {
-  init: () => {},
+  someMessage: undefined,
+  server: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
+  init: () => {
+    app.fetch();
+  },
   send: (message) => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
@@ -35,11 +39,13 @@ let app = {
   fetch: () => {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
-      url: undefined,  // ?? why would this be undefined
+      url: app.server,  // ?? why would this be undefined
       type: 'GET',
-      data: message,
+      // data: message,
       contentType: 'application/json',
-      success: function (data) {
+      success: function (data) { //success is the callback inside the async fetch()
+        app.someMessage = data;
+        app.someMessage.results.forEach((msg) => app.renderMessage(msg));
         console.log('chatterbox: Message received');
       },
       error: function (data) {
@@ -52,12 +58,51 @@ let app = {
     $('#chats').empty();
   },
   renderMessage: (message) => {
-    $('#chats').append('<p> ${JSON.stringify(message)}</p>');
+    // temp div
+    let tempDiv = '<div class="postcardDiv"></div>';
+    // add name div and message div to the temp div
+    $('#chats').append(tempDiv);
+
+    let userName = message['username'];
+    let usernameDiv = '<div class="username">' + userName + '</div>';
+    $('.postcardDiv').append(usernameDiv);
+    $( ".username" ).click(function() {
+      app.handleUsernameClick();
+    }); 
+    let text = message['text'];
+    let roomname = message['roomname'];
+
+
+    // debugger;
+    let currentRooms = $('#roomSelect').children();
+    var matchedRoom = false;
+    // if (roomname === 'lobby') {debugger}
+    // currentRooms.each((room) => {
+    for (var x = 0; x < currentRooms.length; x++) {
+      if (currentRooms[x].value === roomname || roomname === undefined) {
+        matchedRoom = true;
+      }
+
+    }
+    if (!matchedRoom) {
+      app.renderRoom(roomname);
+    }    
+
+    // if (isRoomThere === 0) {
+    //   app.renderRoom(roomname);
+    // }
+    $('.postcardDiv').append('<div class="text">' + text + '</div>');
+    
+    // console.log($('#roomSelect').children($('#' + roomName ])));
+
+    return text;
   },
   renderRoom: (roomName) => {
-    $('#roomSelect').append('<option>${roomName}</option>');
+    $('#roomSelect').append('<option id="' + roomName +'">' + roomName + '</option>');
+  },
+  handleUsernameClick: () => {
+    console.log('clicked!');
   }
-  
 };
 let username = window.location.search.slice(10);
 let messageText = $('input').val();
